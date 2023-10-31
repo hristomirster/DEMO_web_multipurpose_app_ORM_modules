@@ -1,9 +1,9 @@
 import datetime
 from db_connection import engine
 from sqlalchemy.orm import Session, Mapped, mapped_column, DeclarativeBase
-from sqlalchemy import select, String, insert, update, delete
+from sqlalchemy import select, insert, update, delete
 from flask import request, render_template, redirect
-from authentication import requires_auth, Users
+from authentication import requires_auth
 
 
 class Base(DeclarativeBase):
