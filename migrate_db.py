@@ -9,8 +9,8 @@ engine_postgresql = create_engine('postgresql://postgres:ZWOiN2KYZj3C4Dq3n1swOos
 
 
 with engine_sqlite.begin() as conn_sqlite, engine_postgresql.begin() as conn_postgresql:
-    rows = conn_sqlite.execute(select(Users)).fetchall()
+    rows = conn_sqlite.execute(select(ToDo)).fetchall()
 
     for row in rows:
         row_dict = row._asdict()
-        conn_postgresql.execute(Users.__table__.insert().values(**row_dict))
+        conn_postgresql.execute(ToDo.__table__.insert().values(**row_dict))
