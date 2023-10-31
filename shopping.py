@@ -10,32 +10,33 @@ class Base(DeclarativeBase):
     pass
 
 
+class Shopping(Base):
+    __tablename__ = "table_shoping"
+    id: Mapped[int] = mapped_column(primary_key=True)
+    goods: Mapped[str]
+    price: Mapped[int]
+    status: Mapped[str]
+    note: Mapped[str]
+    date: Mapped[str]
+    date_update: Mapped[str]
+    type: Mapped[str]
+    user_account: Mapped[str]
+
+    def __repr__(self) -> str:
+        return f"Shopping(\
+        id={self.id!r}, \
+        goods={self.goods!r}, \
+        price={self.price!r}, \
+        status={self.status!r}, \
+        note={self.note!r}, \
+        date={self.date!r}, \
+        date_update={self.date_update!r}, \
+        type={self.type!r}, \
+        user_account={self.user_account!r}, \
+         )"
+
+
 def configure_shoping_route(app):
-    class Shopping(Base):
-        __tablename__ = "table_shoping"
-        id: Mapped[int] = mapped_column(primary_key=True)
-        goods: Mapped[str]
-        price: Mapped[int]
-        status: Mapped[str]
-        note: Mapped[str]
-        date: Mapped[str]
-        date_update: Mapped[str]
-        type: Mapped[str]
-        user_account: Mapped[str]
-
-        def __repr__(self) -> str:
-            return f"Shopping(\
-            id={self.id!r}, \
-            goods={self.goods!r}, \
-            price={self.price!r}, \
-            status={self.status!r}, \
-            note={self.note!r}, \
-            date={self.date!r}, \
-            date_update={self.date_update!r}, \
-            type={self.type!r}, \
-            user_account={self.user_account!r}, \
-             )"
-
     @app.route('/shoping_tasks.html')
     @requires_auth
     def shoping_tasks():
