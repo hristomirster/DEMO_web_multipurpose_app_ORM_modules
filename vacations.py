@@ -35,20 +35,32 @@ def configure_vacations_route(app):
         with Session(engine) as session:
             current_user = request.authorization.username
             rows = session.execute(
-                select(Vacations.id, Vacations.expenses, Vacations.note, Vacations.possible_date)
+                select(Vacations.id,
+                       Vacations.target_location,
+                       Vacations.target_date,
+                       Vacations.possible_date,
+                       Vacations.person_responsible,
+                       Vacations.expenses,
+                       Vacations.note,
+                       Vacations.status
+                       )
             )
             html_input = []
             for row in rows:
-                id, expenses, note, possible_date = row
+                id, target_location, target_date, possible_date, person_responsible, expenses, note, status = row
 
                 html_input.append({
                     'id': id,
+                    'target_location': target_location,
+                    'target_date': target_date,
+                    'possible_date': possible_date,
+                    'person_responsible': person_responsible,
                     'expenses': expenses,
                     'note': note,
-                    'possible_date': possible_date
+                    'status': status
                 })
 
-        return render_template('vacations_tasks.html', html_input=html_input, current_user=current_user)
+        return render_template('vacations_tasks.html', html_input=html_input, current_user=current_user, current_datetime=datetime.datetime.now())
 
 
 
