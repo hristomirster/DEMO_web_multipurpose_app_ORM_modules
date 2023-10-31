@@ -9,6 +9,7 @@ from authentication import requires_auth, Users
 class Base(DeclarativeBase):
     pass
 
+
 def configure_shoping_route(app):
     class Shopping(Base):
         __tablename__ = "table_shoping"
