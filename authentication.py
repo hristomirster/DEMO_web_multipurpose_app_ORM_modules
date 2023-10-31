@@ -16,9 +16,10 @@ class Users(Base):
     username: Mapped[str] = mapped_column(String)
     password: Mapped[Optional[str]]
     role: Mapped[Optional[str]]
+    user_group: Mapped[Optional[str]]
 
     def __repr__(self) -> str:
-        return f"User(id={self.id!r}, username={self.username!r}, password={self.password!r}, role={self.role!r})"
+        return f"User(id={self.id!r}, username={self.username!r}, password={self.password!r}, role={self.role!r}, user_group={self.user_group!r})"
 
 
 def check_auth(username, password):
