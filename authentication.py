@@ -6,7 +6,6 @@ from flask import request, Response
 from db_connection import engine
 
 
-
 class Base(DeclarativeBase):
     pass
 
@@ -58,4 +57,3 @@ def configure_logout(app):
             401,
             {'WWW-Authenticate': 'Basic realm="Login Required"'}
         )
-

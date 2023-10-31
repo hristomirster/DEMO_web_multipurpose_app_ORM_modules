@@ -1,7 +1,7 @@
 from flask import Flask
 from authentication import configure_logout
 from index import configure_index_route
-from todo import ToDo, configure_todo_route
+from todo import configure_todo_route
 from shopping import configure_shoping_route
 from users import configure_users_route
 
