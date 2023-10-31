@@ -17,6 +17,5 @@ configure_shoping_route(app)
 
 configure_users_route(app)
 
-
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
