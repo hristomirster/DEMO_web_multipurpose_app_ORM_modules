@@ -77,10 +77,11 @@
                 <td>{{ task.user_account }}</td>
                 <td>
                     <select name="user" required>
-                    <option value= "{{ task.user_account }}">{{ task.user_account }}</option>
-                    <option value="User1">User1</option>
-                    <option value="User2">User2</option>
-                </select>
+                        <option value= "{{ task.user_account }}">{{ task.user_account }}</option>
+                        {% for row in users_list %}
+                        <option value="{{ row.user[0] }}">{{ row.user[0] }}</option>
+                        {% endfor %}
+                    </select>
                 </td>
             </tr>
             <tr>

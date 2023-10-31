@@ -3,7 +3,7 @@ from db_connection import engine
 from sqlalchemy.orm import Session, Mapped, mapped_column, DeclarativeBase
 from sqlalchemy import select, insert, update, delete
 from flask import request, render_template, redirect
-from authentication import requires_auth
+from authentication import requires_auth, Users
 
 
 class Base(DeclarativeBase):
@@ -202,7 +202,15 @@ def configure_shoping_route(app):
                         'user_account': task.user_account}
 
                 current_user = request.authorization.username
-                return render_template('edit_shoping_tasks.html', task=task, current_user=current_user)
+                users = session.execute(select(Users.username))
+                users_list = []
+                for row in users:
+                    user = row
+                    if user[0] not in ['root', 'admin']:
+                        users_list.append({
+                            'user': user
+                        })
+                return render_template('edit_shoping_tasks.html', task=task, current_user=current_user, users_list=users_list)
             else:
                 # Handle case when task is not found
                 return "Task not found"
