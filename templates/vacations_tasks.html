@@ -13,17 +13,17 @@
 
 <h1><img src="../static/img/vacation.png"  width="25px" alt="Vacations"> Vacations planner</h1>
 
-    <form action="/add_todo_tasks" method="POST" onsubmit="return validateForm()">
-        <input type="text" name="task" placeholder="New task" required>
-        <select name="responsible" required>
-            <option value="" disabled selected>Select a responsible user</option>
-            {% for row in users_list %}
-            <option value="{{ row.user[0] }}">{{ row.user[0] }}</option>
-            {% endfor %}
-        </select>
-        <input type="text" id="planned_due_date" name="planned_due_date" placeholder="Due date" required>
-        <input type="submit" value="Add task">
-    </form>
+<form action="/add_todo_tasks" method="POST" onsubmit="return validateForm()">
+    <input type="text" name="task" placeholder="New task" required>
+    <select name="responsible" required>
+        <option value="" disabled selected>Select a responsible user</option>
+        {% for row in users_list %}
+        <option value="{{ row.user[0] }}">{{ row.user[0] }}</option>
+        {% endfor %}
+    </select>
+    <input type="text" id="planned_due_date" name="planned_due_date" placeholder="Due date" required>
+    <input type="submit" value="Add task">
+</form>
 <br>
 
 
@@ -79,14 +79,14 @@ document.addEventListener("DOMContentLoaded", function() {
         {% for item in html_input[::-1] %}
             {% if not item.status == 'done_final' %}
                 <tr>
-                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}"><img src="../static/img/todo.ico"  width="15px" alt="To-Do"></td>
-                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.target_location }}</td>
-                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.target_date }}</td>
-                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.possible_date }}</td>
-                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.person_responsible }}</td>
-                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.expenses }}</td>
-                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.note }}</td>
-                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.status }}</td>
+                    <td class="clickable-row" data-href="/edit_vacations_tasks/{{ item.id }}"><img src="../static/img/todo.ico"  width="15px" alt="To-Do"></td>
+                    <td class="clickable-row" data-href="/edit_vacations_tasks/{{ item.id }}">{{ item.target_location }}</td>
+                    <td class="clickable-row" data-href="/edit_vacations_tasks/{{ item.id }}">{{ item.target_date }}</td>
+                    <td class="clickable-row" data-href="/edit_vacations_tasks/{{ item.id }}">{{ item.possible_date }}</td>
+                    <td class="clickable-row" data-href="/edit_vacations_tasks/{{ item.id }}">{{ item.person_responsible }}</td>
+                    <td class="clickable-row" data-href="/edit_vacations_tasks/{{ item.id }}">{{ item.expenses }}</td>
+                    <td class="clickable-row" data-href="/edit_vacations_tasks/{{ item.id }}">{{ item.note }}</td>
+                    <td class="clickable-row" data-href="/edit_vacations_tasks/{{ item.id }}">{{ item.status }}</td>
 
                     <td>
                         <form class="delete-form" action="/delete_todo" method="POST" onsubmit="return confirm('Are you sure you want to delete: {{ item.task }} ?\nThis is a permanent deletion from the database!');" style="display: inline;">
