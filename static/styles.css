@@ -1,0 +1,89 @@
+body {background-color: white}
+h1   {
+    #color: blue;
+    font-family: Arial, Helvetica, sans-serif;
+    }
+
+h2   {
+    #color: blue;
+    font-family: Arial, Helvetica, sans-serif;
+    }
+
+#table_to_do, #main_meny {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#table_to_do td, #table_to_do th {
+  border: 1px solid #ddd;
+  padding: 8px;
+
+}
+
+#table_to_do tr:nth-child(even){background-color: #f2f2f2;}
+
+#table_to_do tr:hover {background-color: #ddd;}
+
+#table_to_do th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+
+
+#table_completed_todo {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+#table_completed_todo td, #table_completed_todo th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+#table_completed_todo tr:nth-child(even){background-color: #f2f2f2;}
+
+#table_completed_todo tr:hover {background-color: #ddd;}
+
+#table_completed_todo th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04AA6D;
+  color: white;
+}
+
+.complete-button {
+background-color: green;
+color: white;
+}
+
+.in_progres-button {
+background-color: orange;
+color: white;
+}
+
+.delayed-button {
+background-color: yellow;
+color: black;
+}
+
+.done-button {
+background-color: green;
+color: white;
+}
+
+
+.delete-button {
+    background-color: red;
+    color: white;
+}
+
+.return-to-List-button {
+    background-color: yellow;
+    color: black;
+}

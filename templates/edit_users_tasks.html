@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit User</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<script>
+    function logout() {
+        fetch('/logout', { method: 'GET' })
+            .then(response => {
+                if (response.status === 401) {
+                    alert('Logged out successfully');
+                    // You can perform further actions here if needed
+                } else {
+                    alert('Logout failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>
+
+{% include "header.html" %}
+
+<h1><img src="../static/img/users.png"  width="25px" alt="Users"> User management</h1>
+
+<h2>Change "{{ task.username }}" Role(permissions)</h2>
+
+
+<form action="/edit_users_tasks_button" method="POST">
+<input type="text" name="id" value="{{ task.id }}" required hidden>
+
+    <table id="table_to_do" align="left">
+        <thead>
+            <tr align="left">
+                <th width = 15%>User:</th>
+                <th>{{ task.username }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Role:</td>
+                <td>
+                    {% if task.username not in ['admin', 'root'] %}
+                        <select name="role" required>
+                            <option value="{{task.role}}" hidden>{{task.role}}</option>
+                            <option value="Super User">Super User</option>
+                            <option value="Administrator">Administrator</option>
+                            <option value="User">User</option>
+                            <option value="Operator">Operator</option>
+                        </select>
+                        {% else %}
+                        <input type="text" name="role" value="{{ task.role }}" required hidden>
+                        {{ task.role }}
+                    {% endif %}
+                </td>
+            </tr>
+    </table>
+
+    <input type="submit" value="Save changes">
+
+</form>
+</body>
+</html>

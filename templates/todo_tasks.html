@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>To-Do List</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='flatpickr.min.css') }}">
+    <script src="../static/flatpickr"></script>
+</head>
+<body>
+
+
+{% include "header.html" %}
+
+<h1><img src="../static/img/todo.ico"  width="25px" alt="To-Do"> To-Do list</h1>
+
+
+    <form action="/add_todo_tasks" method="POST" onsubmit="return validateForm()">
+        <input type="text" name="task" placeholder="New task" required>
+        <select name="responsible" required>
+            <option value="" disabled selected>Select a responsible user</option>
+            {% for row in users_list %}
+            <option value="{{ row.user[0] }}">{{ row.user[0] }}</option>
+            {% endfor %}
+        </select>
+        <input type="text" id="planned_due_date" name="planned_due_date" placeholder="Due date" required>
+        <input type="submit" value="Add task">
+    </form>
+<br>
+
+
+
+<script>
+    function validateForm() {
+        var plannedDueDate = document.getElementById("planned_due_date").value;
+        if (plannedDueDate === "") {
+            alert("Please enter a deadline.");
+            return false; // Prevents the form from being submitted if no deadline is entered.
+        }
+        return true;
+    }
+
+    flatpickr("#planned_due_date", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        time_24hr: true,
+        locale: {
+            firstDayOfWeek: 1 // Monday
+        }
+    });
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    const rows = document.querySelectorAll(".clickable-row");
+    rows.forEach(row => {
+        row.addEventListener("click", () => {
+            const href = row.getAttribute("data-href");
+            window.location.href = href;
+        });
+    });
+});
+</script>
+
+<h2>Planned tasks:</h2>
+
+<table id="table_to_do" class="tablesorter">
+    <thead>
+        <tr align="left">
+            <th width="1%"><img src="../static/img/todo.ico"  width="15px" alt="To-Do"></th>
+            <th>Current tasks:</th>
+            <th>Responsible</th>
+            <th>Due date</th>
+            <th>Status</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in todos[::-1] %}
+            {% if not item.status == 'done_final' %}
+                <tr {% if item.planned_due_date < current_datetime %} style="color: red;" {% endif %}>
+                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}"><img src="../static/img/todo.ico"  width="15px" alt="To-Do"></td>
+                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.task }}</td>
+                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.person_responsible }}</td>
+                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.planned_due_date }}</td>
+                    <td>
+                        {% if item.status == 'to be done' %}
+                            <form class="ststus-form-in_future" action="/in_plan" method="POST" style="display: inline;">
+                                <input type="hidden" name="id" value="{{ item.id }}">
+                                <input type="submit" value="{{ item.status }}" class="plan-button">
+                            </form>
+                        {% endif %}
+                        {% if item.status == 'in progress' %}
+                            <form class="ststus-form-in_progres" action="/in_progres" method="POST" style="display: inline;">
+                                <input type="hidden" name="id" value="{{ item.id }}">
+                                <input type="submit" value="{{ item.status }}" class="in_progres-button">
+                            </form>
+                        {% endif %}
+                        {% if item.status == 'delayed' %}
+                            <form class="ststus-form-in_progres" action="/in_delayed" method="POST" style="display: inline;">
+                                <input type="hidden" name="id" value="{{ item.id }}">
+                                <input type="submit" value="{{ item.status }}" class="delayed-button">
+                            </form>
+                        {% endif %}
+                        {% if item.status == 'done' %}
+                            <form class="ststus-form-in_progres" action="/in_done" method="POST" style="display: inline;">
+                                <input type="hidden" name="id" value="{{ item.id }}">
+                                <input type="submit" value="{{ item.status }}" class="done-button">
+                            </form>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <form class="delete-form" action="/delete_todo" method="POST" onsubmit="return confirm('Are you sure you want to delete: {{ item.task }} ?\nThis is a permanent deletion from the database!');" style="display: inline;">
+                            <input type="hidden" name="id" value="{{ item.id }}">
+                            <input type="submit" value="Delete" class="delete-button">
+                        </form>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<h2>Completed tasks:</h2>
+
+<table id="table_completed_todo">
+    <thead>
+        <tr align="left">
+            <th width="1%"><img src="../static/img/todo.ico"  width="15px" alt="To-Do"></th>
+            <th>Task</th>
+            <th>Responsible</th>
+            <th>Due date</th>
+            <th>Action</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in todos[::-1] %}
+            {% if item.status == 'done_final' %}
+                <tr>
+                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}"><img src="../static/img/todo.ico"  width="15px" alt="To-Do"></td>
+                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.task }}</td>
+                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.person_responsible }}</td>
+                    <td class="clickable-row" data-href="/edit_todo_tasks/{{ item.id }}">{{ item.planned_due_date }}</td>
+<!--                    <td>{{ item.status }}</td>-->
+                    <td>
+                        <form class="delete-form" action="/return_to_list_todo" method="POST" style="display: inline;">
+                            <input type="hidden" name="id" value="{{ item.id }}">
+                            <input type="submit" value="back to current task" class="return-to-List-button1">
+                        </form>
+                    </td>
+                    <td>
+                        <form class="delete-form" action="/delete_todo" method="POST" onsubmit="return confirm('Are you sure you want to delete: {{ item.task }} ?\nThis is a permanent deletion from the database!');" style="display: inline;">
+                            <input type="hidden" name="id" value="{{ item.id }}">
+                            <input type="submit" value="Delete" class="delete-button">
+                        </form>
+                    </td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+
+
+    </tbody>
+</table>
+
+
+<br><br><br><br><br>
+{% include "footer.html" %}
+
+</body>
+</html>

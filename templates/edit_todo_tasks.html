@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit To-Do List</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<script>
+    function logout() {
+        fetch('/logout', { method: 'GET' })
+            .then(response => {
+                if (response.status === 401) {
+                    alert('Logged out successfully');
+                    // You can perform further actions here if needed
+                } else {
+                    alert('Logout failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>
+
+{% include "header.html" %}
+
+<h1><img src="../static/img/todo.ico"  width="25px" alt="To-Do"> To-Do list</h1>
+
+<h1>Edit: "{{ task.task }}"</h1>
+
+
+<form action="/edit_todo_tasks_button" method="POST">
+<input type="text" name="id" value="{{ task.id }}" required hidden>
+
+    <table id="table_to_do" align="left">
+        <thead>
+            <tr align="left">
+                <th></th>
+                <th>old value</th>
+                <th>new value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Task</td>
+                <td>{{ task.task }}</td>
+                <td><input type="text" name="task" value="{{ task.task }}" required></td>
+            </tr>
+            <tr>
+                <td>person_responsible</td>
+                <td>{{ task.person_responsible }}</td>
+                <td>
+                    <select name="person_responsible" required>
+                        <option value="{{ task.person_responsible }}">{{ task.person_responsible }}</option>
+                        {% for row in users_list %}
+                        <option value="{{ row.user[0] }}">{{ row.user[0] }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>planned_due_date</td>
+                <td>{{ task.planned_due_date }}</td>
+                <td><input type="text" name="planned_due_date" value="{{ task.planned_due_date }}"></td>
+            </tr>
+            <tr>
+                <td>status</td>
+                <td>{{ task.status }}</td>
+                <td>
+                    <select name="status" required>
+                        <option value="{{task.status}}">{{task.status}}</option>
+                        <option value="to be done">to be done</option>
+                        <option value="in progress">in progress</option>
+                        <option value="delayed">delayed</option>
+                        <option value="done">done</option>
+                        <option value="done_final">done_final</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>date</td>
+                <td>{{ task.date }}</td>
+                <td><input type="text" name="date" value="{{ task.date }}"></td>
+
+            </tr>
+    </table>
+
+    <input type="submit" value="Save changes">
+
+</form>
+</body>
+</html>

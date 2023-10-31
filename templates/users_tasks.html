@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Add/Edit users</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+
+{% include "header.html" %}
+
+<h1><img src="../static/img/users.png"  width="25px" alt="Users"> User management</h1>
+
+<table id="table_users" class="tablesorter">
+    <tr align="left" valign="top">
+        <th>
+            <h2>Add New user</h2>
+
+            <form action="/add_user_tasks" method="POST" onsubmit="return validateForm()">
+
+            <table id="table_to_do" class="tablesorter">
+                <thead>
+                    <tr align="left">
+                        <th width="1%">New user: </th>
+                        <th><input type="text" name="username" placeholder="New username" required></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Password: </td>
+                        <td><input type="password" name="password_1" placeholder="password" required></td>
+                    </tr>
+                    <tr>
+                        <td>Password: </td>
+                        <td><input type="password" name="password_2" placeholder="repeat password" required></td>
+                    </tr>
+                    <tr>
+                        <td>Permission: </td>
+                        <td>
+                            <select name="role" required>
+                                <option value="" disabled selected>Select a role</option>
+                                <option value="Super User">Super User</option>
+                                <option value="Administrator">Administrator</option>
+                                <option value="User">User</option>
+                                <option value="Operator">Operator</option>
+                            </select>
+                            <input type="submit" value="Add user">
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+            </form>
+
+            <script>
+            function validateForm() {
+                const password1 = document.querySelector('input[name="password_1"]').value;
+                const password2 = document.querySelector('input[name="password_2"]').value;
+
+                if (password1 !== password2) {
+                    alert("Passwords do not match. Please re-enter them.");
+                    document.querySelector('input[name="password_1"]').value = ""; // Занулява стойността
+                    document.querySelector('input[name="password_2"]').value = ""; // Занулява стойността
+                    return false; // Забранява изпращането на формуляра
+                }
+
+                return true; // Позволява изпращането на формуляра
+            }
+            </script>
+        </th>
+        <th>
+            <h2>Add New Group</h2>
+
+            <form action="/add_user_group" method="POST" onsubmit="return validateForm()">
+
+            <table id="table_to_do" class="tablesorter">
+                <thead>
+                    <tr align="left">
+                        <th width="1%">New Group: </th>
+                        <th><input type="text" name="new_group" placeholder="New group" required></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Permission: </td>
+                        <td>
+                            <select name="role" required>
+                                <option value="" disabled selected>Select a role</option>
+                                <option value="Super User">Super User</option>
+                                <option value="Administrator">Administrator</option>
+                                <option value="User">User</option>
+                                <option value="Operator">Operator</option>
+                            </select>
+                            <input type="submit" value="Add Group">
+                        </td>
+                    </tr>
+
+                </tbody>
+            </table>
+            </form>
+
+            <script>
+            function validateForm() {
+                const password1 = document.querySelector('input[name="password_1"]').value;
+                const password2 = document.querySelector('input[name="password_2"]').value;
+
+                if (password1 !== password2) {
+                    alert("Passwords do not match. Please re-enter them.");
+                    document.querySelector('input[name="password_1"]').value = ""; // Занулява стойността
+                    document.querySelector('input[name="password_2"]').value = ""; // Занулява стойността
+                    return false; // Забранява изпращането на формуляра
+                }
+
+                return true; // Позволява изпращането на формуляра
+            }
+            </script>
+        </th>
+    </tr>
+</table>
+
+<h2>Click on user to edit its role or password</h2>
+
+<table id="table_to_do" class="tablesorter">
+    <thead>
+        <tr align="left">
+            <th width="1%"><img src="../static/img/users.png"  width="15px" alt="Users"></th>
+            <th>Users/Groups</th>
+            <th>Role</th>
+            <th>Password</th>
+            {% if user_is_admin == True %}<th>Delete</th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in todos %}
+        <tr>
+            <td class="clickable-row" data-href="/edit_users_tasks/{{ item.id }}"><img src="../static/img/users.png" width="15px" alt="Users"></td>
+            <td class="clickable-row" data-href="/edit_users_tasks/{{ item.id }}">{{ item.username }}</td>
+            <td class="clickable-row" data-href="/edit_users_tasks/{{ item.id }}">{{ item.role }} (Edit)</td>
+            <td class="clickable-row" data-href="/edit_users_pass/{{ item.id }}"> ******** (Edit)</td>
+            {% if user_is_admin == True %}
+            <td>
+                {% if item.username in ['admin', 'root'] %}
+                System account cannot be deleted.
+                {% elif item.username == current_user %}
+                Current user cannot be deleted.
+                {% else %}
+                <form class="delete-form" action="/delete_users" method="POST" onsubmit="return confirm('Are you sure you want to delete: {{ item.username }} ?\nThis is a permanent deletion from the database!');" style="display: inline;">
+                    <input type="hidden" name="id" value="{{ item.id }}">
+                    <input type="submit" value="Delete" class="delete-button">
+                </form>
+
+                {% endif %}
+            </td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const rows = document.querySelectorAll(".clickable-row");
+    rows.forEach(row => {
+        row.addEventListener("click", () => {
+            const href = row.getAttribute("data-href");
+            window.location.href = href;
+        });
+    });
+});
+</script>
+
+<br>
+{% include "footer.html" %}
+
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{{ page_title }}</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+
+
+</head>
+<body>
+    <header>
+        <table id="table_to_do"> <!-- TOP MENU -->
+            <thead>
+                <tr>
+                    <th class="clickable-row" data-href="/"><img src="../static/img/home.ico" width="25px" alt="Home"> Home</th>
+                    <th class="clickable-row" data-href="/todo_tasks.html"><img src="../static/img/todo.ico" width="25px" alt="To-Do"> To-Do</th>
+                    <th class="clickable-row" data-href="/shoping_tasks.html"><img src="../static/img/shopping.ico" width="30px" alt="Shoping"> Shoping</th>
+                    <th class="clickable-row" data-href="/users_tasks.html"><img src="../static/img/users.png" width="30px" alt="User Mgmt"> User Mgmt</th>
+                    <th>
+                        <p align="right">
+                            {{ current_user }}
+                            <button type="button" onclick="logout()">Logout</button>
+                        </p>
+                    </th>
+                </tr>
+            </thead>
+        </table>
+    </header>
+
+<script>
+    function logout() {
+        fetch('/logout', { method: 'GET' })
+            .then(response => {
+                if (response.status === 401) {
+                    alert('Logged out successfully');
+                    // You can perform further actions here if needed
+                } else {
+                    alert('Logout failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    const rows = document.querySelectorAll(".clickable-row");
+    rows.forEach(row => {
+        row.addEventListener("click", () => {
+            const href = row.getAttribute("data-href");
+            window.location.href = href;
+        });
+    });
+});
+
+
+</script>
+
+</body>
+</html>

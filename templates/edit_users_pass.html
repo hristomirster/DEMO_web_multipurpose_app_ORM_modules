@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit User Password</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<script>
+    function logout() {
+        fetch('/logout', { method: 'GET' })
+            .then(response => {
+                if (response.status === 401) {
+                    alert('Logged out successfully');
+                    // You can perform further actions here if needed
+                } else {
+                    alert('Logout failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>
+
+{% include "header.html" %}
+
+<h1><img src="../static/img/users.png"  width="25px" alt="Users"> User management</h1>
+
+<h2>Change "{{ task.username }}" password</h2>
+
+
+<form action="/edit_users_pass_button" method="POST" onsubmit="return validateForm()">
+<input type="text" name="id" value="{{ task.id }}" required hidden>
+    <table id="table_to_do" align="left">
+        <thead>
+            <tr align="left">
+                <th width = 15%>User:</th>
+                <th>{{ task.username }}</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Password:</td>
+                <td><input type="password" name="old_password" placeholder="Old password" required></td>
+            </tr>
+            <tr>
+                <td>New password:</td>
+                <td><input type="password" name="password_1" placeholder="New password" required></td>
+            </tr>
+            <tr>
+                <td>New password:</td>
+                <td><input type="password" name="password_2" placeholder="New password" required></td>
+            </tr>
+    </table>
+
+    <input type="submit" value="Change password">
+
+</form>
+
+<script>
+function validateForm() {
+    const password1 = document.querySelector('input[name="password_1"]').value;
+    const password2 = document.querySelector('input[name="password_2"]').value;
+
+    if (password1 !== password2) {
+        alert("Passwords do not match. Please re-enter them.");
+        document.querySelector('input[name="password_1"]').value = ""; // Занулява стойността
+        document.querySelector('input[name="password_2"]').value = ""; // Занулява стойността
+        return false; // Забранява изпращането на формуляра
+    }
+
+    return true; // Позволява изпращането на формуляра
+}
+</script>
+
+</body>
+</html>

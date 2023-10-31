@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shopping list and planned expenses</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<script>
+    function logout() {
+        fetch('/logout', { method: 'GET' })
+            .then(response => {
+                if (response.status === 401) {
+                    alert('Logged out successfully');
+                    // You can perform further actions here if needed
+                } else {
+                    alert('Logout failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+
+
+document.addEventListener("DOMContentLoaded", function() {
+    const rows = document.querySelectorAll(".clickable-row");
+    rows.forEach(row => {
+        row.addEventListener("click", () => {
+            const href = row.getAttribute("data-href");
+            window.location.href = href;
+        });
+    });
+});
+
+</script>
+
+{% include "header.html" %}
+
+<h1><img src="../static/img/shopping.ico" width="35px" alt="Shoping"> Shoping list</h1>
+
+<form action="/add_shoping_tasks" method="POST" onsubmit="return validateType()">
+    <input type="text" name="goods" placeholder="New planned expense" required>
+    <input type="number" step="0.01" name="price" placeholder="Price" required>
+    <input type="text" name="note" placeholder="Note">
+    <select name="type" required>
+        <option value="" disabled selected>Select a type</option>
+        <option value="food">food</option>
+        <option value="home">home</option>
+        <option value="entertainment">entertainment</option>
+        <option value="bills">bills</option>
+        <option value="transport">transport</option>
+        <option value="mortgage">mortgage</option>
+    </select>
+    <input type="submit" value="Add">
+</form>
+
+<br>
+
+<table id="table_to_do" align="left">
+    <thead>
+        <tr align="left">
+            <th width="1%"><img src="../static/img/shoping_planned.ico" width="15px" alt="shoping_planned.ico"></th>
+            <th width="30%">Planned expenses: ({{ total_sum_html|float|round(2) }} лв.)</th>
+            <th width="10%">Price</th>
+            <th width="10%">Note</th>
+            <th width="10%">Status</th>
+            <th width="10%">Delete</th>
+            <th width="9%">User</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in todos %}
+            {% if not task.status == 'завършен' %}
+                <tr>
+                    <td class="clickable-row" data-href="/edit_shoping_tasks/{{ task.id }}"><img src="../static/img/shoping_planned.ico" width="15px" alt="Shoping"></td>
+                    <td class="clickable-row" data-href="/edit_shoping_tasks/{{ task.id }}">{{ task.goods }}</td>
+                    <td class="clickable-row" data-href="/edit_shoping_tasks/{{ task.id }}" align="right">{{ task.price|float|round(2) }}</td>
+                    <td class="clickable-row" data-href="/edit_shoping_tasks/{{ task.id }}">{{ task.note }} ({{ task.type }})</td>
+                    <td>
+                        <form action="/complete_shoping_task" method="POST" style="display: inline;">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <input type="submit" value="Done" class="complete-button">
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/delete_shoping_task" method="POST" onsubmit="return confirm('Are you sure you want to delete: {{ task.goods }} ? ');" style="display: inline;">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <input type="submit" value="Delete" class="delete-button">
+                        </form>
+                    </td>
+                    <td>{{ task.user_account }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+                <tr>
+                    <td></td>
+                    <td><strong>Total:</strong></td>
+                    <td align="right"><strong>{{ total_sum_html|float|round(2) }}</strong></td>
+                    <td align="left"><strong>лв.</strong></td>
+                </tr>
+    </tbody>
+</table>
+
+
+
+<table id="table_completed_todo">
+    <thead>
+        <tr align="left">
+            <th width="1%"></th>
+            <th width="30%">Expenses incurred: ({{ total_sum_final_html|float|round(2) }} лв.)</th>
+            <th width="10%">Price</th>
+            <th width="10%">Note</th>
+            <th width="10%">Return</th>
+            <th width="10%">Delete</th>
+            <th width="9%">User</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for task in todos %}
+            {% if task.status == 'завършен' %}
+                <tr>
+                    <td class="clickable-row" data-href="/edit_shoping_tasks/{{ task.id }}"><img src="../static/img/edit.png" width="15px" alt="Shoping"></td>
+                    <td class="clickable-row" data-href="/edit_shoping_tasks/{{ task.id }}">{{ task.goods }}</td>
+                    <td class="clickable-row" data-href="/edit_shoping_tasks/{{ task.id }}" align="right">{{ task.price|float|round(2) }}</td>
+                    <td class="clickable-row" data-href="/edit_shoping_tasks/{{ task.id }}">{{ task.note }} ({{ task.type }})</td>
+                    <td>
+                        <form class="delete-form" action="/return_to_list_shop" method="POST" style="display: inline;">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <input type="submit" value="Back" class="return-to-List-button">
+                        </form>
+                    </td>
+                    <td>
+                        <form action="/delete_shoping_task" method="POST" onsubmit="return confirm('Are you sure you want to delete {{ task.goods }} ? ');" style="display: inline;">
+                            <input type="hidden" name="task_id" value="{{ task.id }}">
+                            <input type="submit" value="Delete" class="delete-button">
+                        </form>
+                    </td>
+                    <td>{{ task.user_account }}</td>
+                </tr>
+            {% endif %}
+        {% endfor %}
+            <tr>
+                <td></td>
+                <td><strong>Total:</strong></td>
+                <td align="right"><strong>{{ total_sum_final_html|float|round(2) }}</strong></td>
+                <td align="left"><strong>лв.</strong></td>
+            </tr>
+    </tbody>
+</table>
+
+
+
+
+
+<br>
+<h2>Breakdown by type:</h2>
+
+<table id="table_to_do">
+    <thead>
+        <tr align="left">
+            <th>Type:</th>
+            <th>Total {{ total_sum_final_html|float|round(2) }} лв.</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>food</td>
+            <td align="right">{{ food_html|float|round(2) }}</td>
+        </tr>
+        <tr>
+            <td>home</td>
+            <td align="right">{{ household_html|float|round(2) }}</td>
+        </tr>
+        <tr>
+            <td>entertainment</td>
+            <td align="right">{{ fun_html|float|round(2) }}</td>
+        </tr>
+        <tr>
+            <td>bills</td>
+            <td align="right">{{ taxes_html|float|round(2) }}</td>
+        </tr>
+        <tr>
+            <td>transport</td>
+            <td align="right">{{ transport_html|float|round(2) }}</td>
+        </tr>
+        <tr>
+            <td>mortgage</td>
+            <td align="right">{{ mortgage_html|float|round(2) }}</td>
+        </tr>
+        <tr>
+            <td align="left"><strong>Total:</strong></td>
+            <td align="right"><strong>{{ total_sum_final_html|float|round(2) }}</strong></td>
+        </tr>
+
+    </tbody>
+</table>
+
+
+<br><br><br><br><br>
+{% include "footer.html" %}
+
+
+</body>
+</html>

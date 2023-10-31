@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shopping / To-Do List</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<script>
+    function logout() {
+        fetch('/logout', { method: 'GET' })
+            .then(response => {
+                if (response.status === 401) {
+                    alert('Logged out successfully');
+                    // You can perform further actions here if needed
+                } else {
+                    alert('Logout failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+    }
+</script>
+
+{% include "header.html" %}
+
+<h1><img src="../static/img/shopping.ico" width="35px" alt="Shoping"> Shoping list</h1>
+
+<h1>Edit: "{{ task.goods }}"</h1>
+
+
+<form action="/edit_shoping_tasks_button" method="POST">
+<input type="text" name="id" value="{{ task.id }}" required hidden>
+
+    <table id="table_to_do" align="left">
+        <thead>
+            <tr align="left">
+                <th></th>
+                <th>old value</th>
+                <th>new value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Expense</td>
+                <td>{{ task.goods }}</td>
+                <td><input type="text" name="goods" value="{{ task.goods }}" required></td>
+            </tr>
+            <tr>
+                <td>Price</td>
+                <td>{{ task.price }} лв.</td>
+                <td><input type="number" step="0.01" name="price" value="{{ task.price }}" required></td>
+            </tr>
+            <tr>
+                <td>Note</td>
+                <td>{{ task.note }}</td>
+                <td><input type="text" name="note" value="{{ task.note }}"></td>
+            </tr>
+            <tr>
+                <td>Type</td>
+                <td>{{ task.type }}</td>
+                <td>
+                    <select name="type" required>
+                        <option value="{{ task.type }}">{{ task.type }}</option>
+                        <option value="food">food</option>
+                        <option value="home">home</option>
+                        <option value="entertainment">entertainment</option>
+                        <option value="bills">bills</option>
+                        <option value="transport">transport</option>
+                        <option value="mortgage">mortgage</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td>User</td>
+                <td>{{ task.user_account }}</td>
+                <td>
+                    <select name="user" required>
+                    <option value= "{{ task.user_account }}">{{ task.user_account }}</option>
+                    <option value="User1">User1</option>
+                    <option value="User2">User2</option>
+                </select>
+                </td>
+            </tr>
+            <tr>
+                <td>date</td>
+                <td>{{ task.date }}</td>
+            </tr>
+            <tr>
+                <td>date update</td>
+                <td>{{ task.date_update }}</td>
+            </tr>
+    </table>
+
+    <input type="submit" value="Save changes">
+
+</form>
+</body>
+</html>
