@@ -1,12 +1,17 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Vacations planner</title>
+    <title>Vacations tasks</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='flatpickr.min.css') }}">
+    <script src="../static/flatpickr"></script>
 </head>
 <body>
 
-<h1>Vacations planner</h1>
+
+{% include "header.html" %}
+
+<h1><img src="../static/img/vacation.png"  width="25px" alt="Vacations"> Vacations planner</h1>
 
 </body>
 </html>
