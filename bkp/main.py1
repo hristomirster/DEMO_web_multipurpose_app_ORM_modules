@@ -1,0 +1,355 @@
+from flask import Flask, render_template, redirect, request, Response
+import sqlite3, datetime
+from functools import wraps
+
+current_datetime = datetime.datetime.now()
+from datetime import datetime
+
+app = Flask(__name__)
+
+########### Authentication start ##############
+def check_auth(username, password):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM table_users WHERE username=? AND password=?', (username, password))
+    user = cursor.fetchone()
+    conn.close()
+    return user is not None
+
+
+
+def requires_auth(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        auth = request.authorization
+        if not auth or not check_auth(auth.username, auth.password):
+            return authenticate()
+        return f(*args, **kwargs)
+
+    return decorated
+
+
+def authenticate():
+    """Sends a 401 response that enables basic auth"""
+    return Response(
+        'Could not verify your access level for that URL.\n'
+        'You have to login with proper credentials', 401,
+        {'WWW-Authenticate': 'Basic realm="Login Required"'})
+
+
+@app.route('/logout')
+def logout():
+    return Response(
+        'Logged out successfully',
+        401,
+        {'WWW-Authenticate': 'Basic realm="Login Required"'}
+    )
+########### Authentication end ##############
+
+
+conn = sqlite3.connect('./database.db')  # create table_todo
+c = conn.cursor()
+c.execute('''
+    CREATE TABLE IF NOT EXISTS table_todo (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task TEXT NOT NULL,
+        person_responsible TEXT, 
+        planned_due_date TEXT,
+        status TEXT,
+        date TEXT    )
+''')
+conn.commit()
+
+conn = sqlite3.connect('./database.db')  # create table_shoping
+c = conn.cursor()
+c.execute('''
+    CREATE TABLE IF NOT EXISTS table_shoping (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        goods TEXT NOT NULL,
+        price INTEGER NOT NULL, 
+        status TEXT,
+        note TEXT NOT NULL,
+        date TEXT,
+        date_update TEXT,
+        type TEXT,
+        user_account TEXT)
+''')
+
+@app.route('/')
+@requires_auth
+def index():
+    current_user = request.authorization.username  # Get the logged-in username
+    return render_template('index.html', current_user=current_user)
+
+
+@app.route('/todo_tasks.html')
+@requires_auth
+def todo_tasks():
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('SELECT task, person_responsible, planned_due_date, status, date FROM table_todo')
+    rows = c.fetchall()
+    conn.commit()
+    conn.close()
+    current_user = request.authorization.username  # Get the logged-in username
+    todos = []
+    for row in rows:
+        task, person_responsible, planned_due_date_str, status, date = row
+        planned_due_date = datetime.strptime(planned_due_date_str, '%Y-%m-%d %H:%M')  # Remove :%S
+        todos.append({
+            'task': task,
+            'person_responsible': person_responsible,
+            'planned_due_date': planned_due_date,
+            'status': status,
+            'date': date
+        })
+    return render_template('todo_tasks.html', todos=todos, current_user=current_user, current_datetime=datetime.now())
+
+
+@app.route('/add_todo_tasks', methods=['POST'])
+@requires_auth
+def add_todo_tasks():
+    task = request.form['task']
+    responsible = request.form['responsible']
+    planned_due_date = request.form['planned_due_date']
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('INSERT INTO table_todo (task, person_responsible, planned_due_date, status, date) VALUES (?,?,?,?,?)',
+              (task, responsible, planned_due_date, 'to be done', current_datetime))
+    conn.commit()
+    conn.close()
+    return redirect('/todo_tasks.html')
+
+
+@app.route('/in_plan', methods=['POST'])
+def in_plan():
+    task = request.form['task']
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('UPDATE table_todo SET status = ? WHERE task = ?', ('in progress', task,))
+    conn.commit()
+    conn.close()
+    return redirect('/todo_tasks.html')
+
+
+@app.route('/in_progres', methods=['POST'])
+def in_progres():
+    task = request.form['task']
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('UPDATE table_todo SET status = ? WHERE task = ?', ('delayed', task,))
+    conn.commit()
+    conn.close()
+    return redirect('/todo_tasks.html')
+
+
+@app.route('/in_delayed', methods=['POST'])
+def in_delayed():
+    task = request.form['task']
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('UPDATE table_todo SET status = ? WHERE task = ?', ('done', task,))
+    conn.commit()
+    conn.close()
+    return redirect('/todo_tasks.html')
+
+
+@app.route('/in_done', methods=['POST'])
+def in_done():
+    task = request.form['task']
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('UPDATE table_todo SET status = ?, date = ? WHERE task = ?',
+              ('done_final', current_datetime.now(), task))
+    conn.commit()
+    conn.close()
+    return redirect('/todo_tasks.html')
+
+
+@app.route('/return_to_list_todo', methods=['POST'])
+def return_to_list_todo():
+    task = request.form['task']
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('UPDATE table_todo SET status = ?, date = ? WHERE task = ?', ('to be done', current_datetime.now(), task))
+    conn.commit()
+    conn.close()
+    return redirect('/todo_tasks.html')
+
+
+@app.route('/delete_todo', methods=['POST'])
+def delete_todo():
+    task = request.form['task']
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('DELETE FROM table_todo WHERE task = ?', (task,))
+    conn.commit()
+    conn.close()
+    return redirect('/todo_tasks.html')
+
+
+@app.route('/shoping_tasks.html')
+@requires_auth
+def shoping_tasks():
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('SELECT id, goods, price, status, note, date, date_update, type, user_account FROM table_shoping')
+    todos = [{'id': row[0], 'goods': row[1], 'price': row[2], 'status': row[3], 'note': row[4], 'date': row[5],
+              'date_update': row[6], 'type': row[7], 'user_account': row[8]} for row in c.fetchall()]
+    conn.close()
+
+    todos_sorted = sorted(todos, key=lambda x: x['date_update'], reverse=True)  # Сортирайте по дата в низходящ ред
+
+    total_sum = 0
+    for task in todos:
+        if task['status'] != 'завършен':
+            total_sum += task['price']
+    total_sum_final = 0
+    for task in todos:
+        if task['status'] == 'завършен':
+            total_sum_final += task['price']
+
+    food = 0
+    for task in todos:
+        if task['type'] == 'food':
+            food += task['price']
+
+    household = 0
+    for task in todos:
+        if task['type'] == 'home':
+            household += task['price']
+
+    fun = 0
+    for task in todos:
+        if task['type'] == 'entertainment':
+            fun += task['price']
+
+    taxes = 0
+    for task in todos:
+        if task['type'] == 'bills':
+            taxes += task['price']
+
+    transport = 0
+    for task in todos:
+        if task['type'] == 'transport':
+            transport += task['price']
+
+    mortgage = 0
+    for task in todos:
+        if task['type'] == 'mortgage':
+            mortgage += task['price']
+
+    current_user = request.authorization.username
+    return render_template('shoping_tasks.html',
+                           total_sum_html=total_sum,
+                           total_sum_final_html=total_sum_final,
+                           food_html=food,
+                           household_html=household,
+                           fun_html=fun,
+                           taxes_html=taxes,
+                           transport_html=transport,
+                           mortgage_html=mortgage,
+                           todos=todos_sorted,
+                           current_user=current_user)
+
+
+@app.route('/add_shoping_tasks', methods=['POST'])
+def add_shoping_tasks():
+    task = request.form['goods']
+    price = request.form['price']
+    note = request.form['note']
+    type = request.form['type']
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    current_user = request.authorization.username  # Get the logged-in username
+    c.execute('INSERT INTO table_shoping (goods, price, status, note, date, date_update, type, user_account) VALUES ('
+              '?,?,?,?,?,?,?,?)', (task, price, 'to be done', note, current_datetime.now(), current_datetime.now(),
+                                   type, current_user))
+    conn.commit()
+    conn.close()
+    return redirect('/shoping_tasks.html')
+
+
+@app.route('/complete_shoping_task', methods=['POST'])
+def complete_shoping_task():
+    task_id = request.form['task_id']
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('UPDATE table_shoping SET status = ?, date_update =? WHERE id = ?',
+              ('завършен', current_datetime.now(), task_id,))
+    conn.commit()
+    conn.close()
+    return redirect('/shoping_tasks.html')
+
+
+@app.route('/delete_shoping_task', methods=['POST'])
+def delete_shoping_task():
+    task_id = request.form['task_id']
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('DELETE FROM table_shoping WHERE id = ?', (task_id,))
+    conn.commit()
+    conn.close()
+    return redirect('/shoping_tasks.html')
+
+
+@app.route('/return_to_list_shop', methods=['POST'])
+def return_to_list_shop():
+    task_id = request.form['task_id']
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute('UPDATE table_shoping SET status = ?, date_update =? WHERE id = ?',
+              ('to be done', current_datetime.now(), task_id,))
+    conn.commit()
+    conn.close()
+    return redirect('/shoping_tasks.html')
+
+
+@app.route('/edit_shoping_tasks/<int:task_id>', methods=['GET', 'POST'])
+@requires_auth
+def edit_shoping_tasks(task_id):
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute(
+        'SELECT id, goods, price, status, note, date, date_update, type, user_account FROM table_shoping WHERE id = ?',
+        (task_id,))
+    task = c.fetchone()
+    conn.close()
+
+    if task:
+        task = {'id': task[0], 'goods': task[1], 'price': task[2], 'status': task[3], 'note': task[4],
+                'date': task[5], 'date_update': task[6], 'type': task[7], 'user_account': task[8]}
+        current_user = request.authorization.username
+        return render_template('edit_shoping_tasks.html', task=task, current_user=current_user)
+    else:
+        # Handle case when task is not found
+        return "Task not found"
+
+
+@app.route('/edit_shoping_tasks_button', methods=['POST'])
+@requires_auth
+def add_shoping_tasks_button():
+    id = request.form['id']
+    task = request.form['goods']
+    price = request.form['price']
+    note = request.form['note']
+    type = request.form['type']
+    user = request.form['user']
+    conn = sqlite3.connect('database.db')
+    c = conn.cursor()
+    c.execute("UPDATE table_shoping SET goods = ?, price = ?, note = ?, type = ?, user_account = ? WHERE id = ?",
+              (task, price, note, type, user, id,))
+    conn.commit()
+    conn.close()
+    return redirect('/shoping_tasks.html')
+
+
+@app.route('/users.html')
+@requires_auth
+def users():
+    current_user = request.authorization.username  # Get the logged-in username
+    return render_template('users.html', current_user=current_user)
+
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5001)
