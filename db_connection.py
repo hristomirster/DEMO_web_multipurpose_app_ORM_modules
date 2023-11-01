@@ -1,6 +1,9 @@
+from decouple import config
 from sqlalchemy import create_engine
 
-engine = create_engine('postgresql://postgres:ZWOiN2KYZj3C4Dq3n1swOosDsZWcx@localhost/pg_database')
+db_password = config('DB_PASSWORD')
+
+engine = create_engine(f'postgresql://postgres:{db_password}@localhost/pg_database')
 
 
 """
