@@ -2,7 +2,7 @@ DEMO web multipurpose app ORM modules
 
 For live demonstration use:
 
-http://18.193.123.132:5000/
+https://18.193.123.132
 
 user: Demo_user
 
